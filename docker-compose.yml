@@ -1,9 +1,15 @@
-# Copyright VMware, Inc.
-# SPDX-License-Identifier: APACHE-2.0
-
-version: '2'
-
 services:
+  db:
+    image: postgres
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - pyldf-network
+
   openldap:
     image: docker.io/bitnami/openldap:2.6
     ports:
@@ -12,17 +18,17 @@ services:
     environment:
       - LDAP_ADMIN_USERNAME=admin
       - LDAP_ADMIN_PASSWORD=adminpassword
-      - LDAP_USERS=platmi
-      - LDAP_PASSWORDS=platmi
+      - LDAP_USERS=michael
+      - LDAP_PASSWORDS=michael
       - LDAP_URI=ldap://openldap:1389 
       - LDAP_BASE=dc=example,dc=org
       - LDAP_BIND_DN=cn=admin,dc=example,dc=org
       - LDAP_BIND_PASSWORD=bindpassword
-
     volumes:
       - 'openldap_data:/bitnami/openldap'
     networks:
-      - default
+      - pyldf-network
+
   web:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
@@ -31,17 +37,17 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - LDAP_ADMIN_USERNAME=admin
-      - LDAP_ADMIN_PASSWORD=adminpassword
-      - LDAP_USERS=platmi
-      - LDAP_PASSWORDS=platmi
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     networks:
-    - default
+      - pyldf-network
     depends_on:
+      - db
       - openldap
 volumes:
   openldap_data:
     driver: local
 networks:
-  default:
-    name: pyldf-network
+  pyldf-network:
+    driver: bridge
