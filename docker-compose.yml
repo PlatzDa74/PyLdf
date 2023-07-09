@@ -1,0 +1,47 @@
+# Copyright VMware, Inc.
+# SPDX-License-Identifier: APACHE-2.0
+
+version: '2'
+
+services:
+  openldap:
+    image: docker.io/bitnami/openldap:2.6
+    ports:
+      - '1389:1389'
+      - '1636:1636'
+    environment:
+      - LDAP_ADMIN_USERNAME=admin
+      - LDAP_ADMIN_PASSWORD=adminpassword
+      - LDAP_USERS=platmi
+      - LDAP_PASSWORDS=platmi
+      - LDAP_URI=ldap://openldap:1389 
+      - LDAP_BASE=dc=example,dc=org
+      - LDAP_BIND_DN=cn=admin,dc=example,dc=org
+      - LDAP_BIND_PASSWORD=bindpassword
+
+    volumes:
+      - 'openldap_data:/bitnami/openldap'
+    networks:
+      - default
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    environment:
+      - LDAP_ADMIN_USERNAME=admin
+      - LDAP_ADMIN_PASSWORD=adminpassword
+      - LDAP_USERS=platmi
+      - LDAP_PASSWORDS=platmi
+    networks:
+    - default
+    depends_on:
+      - openldap
+volumes:
+  openldap_data:
+    driver: local
+networks:
+  default:
+    name: pyldf-network
