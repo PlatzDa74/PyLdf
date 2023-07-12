@@ -1,0 +1,16 @@
+{% extends 'polls/base.html' %}
+{% block content %}
+
+<h1>Frage: {{ umfrage.name }}</h1>
+
+{% if umfrage.choice_set.all %}
+<ul>
+    {% for choice in umfrage.choice_set.all %}
+        <li>{{ choice.name }}: {{ choice.votes }} haben dafuer abgestimmt</li>
+    {% endfor %}
+</ul>
+{% else %}
+    <p>Keine Antwortmöglichkeiten vorhanden.</p>
+{% endif %}
+
+{% endblock %}

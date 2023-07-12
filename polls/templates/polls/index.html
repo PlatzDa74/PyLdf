@@ -1,0 +1,18 @@
+{% extends 'polls/base.html' %}
+{% block content %}
+
+    <h1>{{ ueberschrift }}</h1>
+    <p>Gefundene Umfragen</p>
+    {% if umfragen %}
+        <ul>
+            {% for umfrage in umfragen %}
+                <li><a href="{% url 'umfrage-detail' umfrage.slug %}">{{ umfrage.name }}</a></li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <ul>
+            <p>Keine Umfragen vorhanden</p>
+        </ul>
+    {% endif %}
+
+{% endblock %}
